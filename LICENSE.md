@@ -5,7 +5,6 @@ Bu mod, "The Pixel Devs Studio" tarafından, parmaklarını yormak istemeyen ü�
 ### 1. KULLANIM VE PAYLAŞIM (Yapıştır Gitsin)
 - Bu modu istediğiniz gibi oynayabilir, yayınlayabilir, ekran görüntüsü alıp "Bakın nasıl Full Combo yapıyorum" diye hava atabilirsiniz.
 - Botun başarısını kendi başarınız gibi pazarlamak serbesttir, ancak vicdan azabından biz sorumlu değiliz.
-- Modu bir videoda kullanacaksanız, o meşhur GameBanana linkini (https://gamebanana.com/mods/626911) bir köşeye iliştirmeniz, geliştiricilerin (ve botun) kalbini yumuşatır.
 
 ### 2. YASAKLAR (Sakın Ha!)
 - **Ticari Kullanım:** Bu modu satamazsınız. Botun emeği üzerinden zengin olamazsınız. Bedava verdik, bedava kalsın.
