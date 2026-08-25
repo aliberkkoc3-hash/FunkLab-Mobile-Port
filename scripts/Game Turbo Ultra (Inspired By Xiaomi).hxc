@@ -1,0 +1,641 @@
+package funkin.modding;
+
+import flixel.FlxSprite;
+import flixel.group.FlxGroup;
+import flixel.math.FlxPoint;
+import flixel.util.FlxDestroyUtil;
+import flixel.FlxG;
+import funkin.save.Save;
+import funkin.ui.options.OptionsState;
+import funkin.ui.options.PreferencesMenu;
+import funkin.modding.module.Module;
+
+class GameTurboModule_Ultra extends Module
+{
+    public static var lastStageId:String = null;
+    public static var lastDadId:String = null;
+    public static var lastBfId:String = null;
+    public static var lastGfId:String = null;
+
+    public static var gameTurboEnabled:Bool = false;
+
+    var gameTurboPageInjected:Bool = false;
+
+    public static inline var NOTE_POOL_BASE:Int = 128;
+    public static inline var NOTE_POOL_MAX:Int = 192;
+    public static inline var OFFSCREEN_RECYCLE_MARGIN:Float = 96.0;
+
+    public static inline var FPS_LOW:Float = 80.0;
+    public static inline var FPS_MEDIUM:Float = 60.0;
+    public static inline var FPS_CRITICAL:Float = 45.0;
+    public static inline var FPS_EMERGENCY:Float = 30.0;
+
+    public static inline var RAM_ULTRA_LOW:Int = 300;
+    public static inline var RAM_LOW:Int = 500;
+    public static inline var RAM_CAP:Int = 800;
+
+    static var _pool:Array<FlxSprite> = [];
+    static var _active:Array<FlxSprite> = [];
+    static var _poolInitialized:Bool = false;
+
+    static var _avgFrameTime:Float = 1 / 120;
+    static inline var _SMOOTHING:Float = 0.15;
+    public static var currentFPS:Float = 120.0;
+
+    public static var botHitQueue:Array<Dynamic> = [];
+
+    static var _saveInitialized:Bool = false;
+
+    static var _memTimer:Float = 0;
+    static var _shrinkTimer:Float = 0;
+    static var _throttleSpikes:Int = 0;
+    static inline var FRAME_SPIKE:Float = 0.030;
+
+    static var _extraTimer:Float = 0;
+    static var _loadTimer:Float = 0;
+
+    public function new()
+    {
+        super("GameTurboModule_Ultra");
+    }
+
+    override function onStateChangeEnd(event)
+    {
+        var state = event.targetState;
+        if (!(state is OptionsState)) { gameTurboPageInjected = false; return; }
+        if (gameTurboPageInjected) return;
+        gameTurboPageInjected = true;
+
+        if (!_saveInitialized)
+        {
+            var save = Save.instance.modOptions.get("gameTurboUltra");
+            if (save == null)
+            {
+                save = { enabled: false };
+                Save.instance.modOptions.set("gameTurboUltra", save);
+                Save.instance.flush();
+            }
+
+            gameTurboEnabled = save.enabled;
+            if (gameTurboEnabled) _activateTurbo();
+            _saveInitialized = true;
+        }
+
+        var save = Save.instance.modOptions.get("gameTurboUltra");
+        var codex = state.optionsCodex;
+
+        var page = codex.addPage("gameTurboUltra", new PreferencesMenu());
+        page.onExit.add(function() { codex.switchPage("options"); });
+
+        for (d in page.items) d.destroy();
+        for (d in page.preferenceItems) d.destroy();
+        page.items.clear();
+        page.preferenceItems.clear();
+        page.preferenceDesc = [];
+
+        var options = codex.pages.get("options");
+        var moved = [];
+
+        for (i => item in options.items.members)
+        {
+            if (i < 2) continue;
+            item.y += 80;
+            options.items.remove(item);
+            moved.push(item);
+        }
+
+        var btn = options.items.createItem(
+            0,
+            options.items.members[1].y + 80,
+            "GAME TURBO ULTRA",
+            "bold",
+            function() { options.onSwitch.dispatch("gameTurboUltra"); }
+        );
+        btn.x = (FlxG.width - btn.width) / 2;
+
+        for (item in moved) options.items.add(item);
+
+        page.createPrefItemCheckbox(
+            "Game Turbo Ultra",
+            "Game Turbo Ultra — Extreme low‑RAM and low‑CPU mode designed for 1GB–2GB devices, old Celeron/Pentium CPUs, and low‑end phones (MT6765, Snapdragon 662). Reduces textures, animations, and memory usage to maintain smooth 60+ FPS on very weak hardware.",
+            function(v) {
+                save.enabled = v;
+                gameTurboEnabled = v;
+                Save.instance.flush();
+                if (v) _activateTurbo(); else _deactivateTurbo();
+            },
+            save.enabled
+        );
+    }
+
+    static function _activateTurbo():Void
+    {
+        botHitQueue = [];
+        _avgFrameTime = 1 / 120;
+        currentFPS = 120.0;
+        _memTimer = 0;
+        _shrinkTimer = 0;
+        _throttleSpikes = 0;
+        _extraTimer = 0;
+        _loadTimer = 0;
+    }
+
+    static function _deactivateTurbo():Void
+    {
+        botHitQueue = [];
+        destroyNotePool();
+        _avgFrameTime = 1 / 60;
+        currentFPS = 60.0;
+        _memTimer = 0;
+        _shrinkTimer = 0;
+        _throttleSpikes = 0;
+        _extraTimer = 0;
+        _loadTimer = 0;
+    }
+
+    public static function turboTick(elapsed:Float):Void
+    {
+        _sampleFPS(elapsed);
+        if (!gameTurboEnabled) return;
+
+        var throttling = _detectThrottle(elapsed);
+        var ram = _getUsedMB();
+
+        var mode:Int;
+        if (ram >= RAM_CAP) mode = 3;
+        else if (ram >= RAM_LOW) mode = 2;
+        else mode = 1;
+
+        if (currentFPS >= FPS_EMERGENCY && !throttling && mode == 1)
+            _recycleOffscreenNotes();
+        else
+            _hardCullNotes(mode);
+
+        _applyQuality(throttling, mode);
+        _processBotHits(mode);
+        _memoryCleaner(elapsed, mode);
+        _shrinkPools(elapsed, mode, ram);
+        if (mode == 3) _hardRamLimit();
+
+        _extraTimer += elapsed;
+        if (_extraTimer > 0.20)
+        {
+            _extraTimer = 0;
+            _extraGlobal();
+            _extraNotes();
+            _extraChars();
+            _extraStage();
+        }
+
+        _loadTimer += elapsed;
+        if (_loadTimer > 0.35)
+        {
+            _loadTimer = 0;
+            _fastLoad();
+        }
+    }
+
+    static function _fastLoad():Void
+    {
+        var dad = Reflect.getProperty(FlxG.state, "dad");
+        var bf = Reflect.getProperty(FlxG.state, "boyfriend");
+        var gf = Reflect.getProperty(FlxG.state, "gf");
+
+        if (dad != null && Reflect.hasField(dad, "animationsArray") && dad.animationsArray != null && dad.animationsArray.length > 0)
+            dad.animationsArray.resize(4);
+
+        if (bf != null && Reflect.hasField(bf, "animationsArray") && bf.animationsArray != null && bf.animationsArray.length > 0)
+            bf.animationsArray.resize(4);
+
+        if (gf != null && Reflect.hasField(gf, "animationsArray") && gf.animationsArray != null && gf.animationsArray.length > 0)
+            gf.animationsArray.resize(2);
+
+        var stage = Reflect.getProperty(FlxG.state, "bgGroup");
+        if (stage != null && stage.members.length > 6)
+            stage.members.resize(6);
+
+        var fg = Reflect.getProperty(FlxG.state, "fgGroup");
+        if (fg != null && fg.members.length > 4)
+            fg.members.resize(4);
+    }
+
+    static function _extraGlobal():Void
+    {
+        FlxG.camera.antialiasing = false;
+        if (FlxG.game != null) FlxG.game.stage.quality = "low";
+    }
+
+    static function _extraNotes():Void
+    {
+        var n = Reflect.getProperty(FlxG.state, "notes");
+        if (n == null) return;
+        var len:Int = n.length;
+        var i = 0;
+        while (i < len)
+        {
+            var spr:Dynamic = n.members[i];
+            if (spr != null)
+            {
+                spr.antialiasing = false;
+                spr.shader = null;
+                spr.scale.set(0.75, 0.75);
+                if (Reflect.hasField(spr, "splash")) spr.splash = null;
+            }
+            i++;
+        }
+    }
+
+    static function _extraChars():Void
+    {
+        var dad = Reflect.getProperty(FlxG.state, "dad");
+        var bf = Reflect.getProperty(FlxG.state, "boyfriend");
+        var gf = Reflect.getProperty(FlxG.state, "gf");
+
+        if (dad != null)
+        {
+            dad.antialiasing = false;
+            dad.shader = null;
+            dad.scale.set(0.9, 0.9);
+        }
+        if (bf != null)
+        {
+            bf.antialiasing = false;
+            bf.shader = null;
+            bf.scale.set(0.9, 0.9);
+        }
+        if (gf != null)
+        {
+            gf.antialiasing = false;
+            gf.shader = null;
+            gf.scale.set(0.9, 0.9);
+        }
+    }
+
+    static function _extraStage():Void
+    {
+        var bg = Reflect.getProperty(FlxG.state, "bgGroup");
+        var fg = Reflect.getProperty(FlxG.state, "fgGroup");
+
+        if (bg != null)
+        {
+            for (spr in bg.members)
+            {
+                if (spr != null)
+                {
+                    spr.antialiasing = false;
+                    spr.shader = null;
+                    spr.scale.set(0.9, 0.9);
+                }
+            }
+        }
+
+        if (fg != null)
+        {
+            for (spr in fg.members)
+            {
+                if (spr != null)
+                {
+                    spr.antialiasing = false;
+                    spr.shader = null;
+                    spr.scale.set(0.9, 0.9);
+                }
+            }
+        }
+    }
+
+    static function _applyQuality(throttling:Bool, mode:Int):Void
+    {
+        var fps = currentFPS;
+        var hitLineY = FlxG.height * 0.85;
+        var visibilityRadius:Float;
+
+        if (fps >= FPS_LOW && !throttling && mode == 1) visibilityRadius = FlxG.height * 0.6;
+        else if (fps >= FPS_MEDIUM) visibilityRadius = FlxG.height * 0.45;
+        else if (fps >= FPS_CRITICAL) visibilityRadius = FlxG.height * 0.3;
+        else visibilityRadius = FlxG.height * 0.2;
+
+        var i = 0;
+        var len = _active.length;
+        while (i < len)
+        {
+            var spr = _active[i];
+            if (spr == null || !spr.exists) { i++; continue; }
+
+            spr.antialiasing = false;
+
+            var dy = Math.abs(spr.y - hitLineY);
+            spr.visible = dy < visibilityRadius;
+
+            if (mode >= 2 || fps < FPS_CRITICAL || throttling)
+            {
+                spr.alpha = 0.75;
+                spr.scale.set(0.75, 0.75);
+            }
+            else
+            {
+                spr.alpha = 1.0;
+            }
+
+            i++;
+        }
+    }
+
+    static function _processBotHits(mode:Int):Void
+    {
+        if (botHitQueue.length == 0) return;
+
+        var maxPerFrame:Int;
+        if (mode == 1) maxPerFrame = 12;
+        else if (mode == 2) maxPerFrame = 8;
+        else maxPerFrame = 6;
+
+        var count = 0;
+        while (botHitQueue.length > 0 && count < maxPerFrame)
+        {
+            var n = botHitQueue.shift();
+            if (n != null)
+            {
+                try
+                {
+                    n.wasGoodHit = true;
+                    n.tooEarly = false;
+                    if (n.holdNoteSprite != null) n.holdNoteSprite.visible = false;
+                    if (n.kill != null) n.kill();
+                }
+                catch (e:Dynamic) {}
+            }
+            count++;
+        }
+    }
+
+    public static function initNotePool():Void
+    {
+        if (_poolInitialized) return;
+
+        _pool = [];
+        _active = [];
+
+        var size = NOTE_POOL_BASE;
+        var i = 0;
+        while (i < size)
+        {
+            var spr = new FlxSprite();
+            spr.exists = false;
+            _pool.push(spr);
+            i++;
+        }
+
+        _poolInitialized = true;
+    }
+
+    public static function destroyNotePool():Void
+    {
+        if (!_poolInitialized) return;
+        for (spr in _active) FlxDestroyUtil.destroy(spr);
+        for (spr in _pool) FlxDestroyUtil.destroy(spr);
+        _active = [];
+        _pool = [];
+        _poolInitialized = false;
+    }
+
+    public static function spawnNote():FlxSprite
+    {
+        if (!_poolInitialized) initNotePool();
+
+        var spr:FlxSprite;
+        if (_pool.length > 0) spr = _pool.pop();
+        else if (_active.length >= NOTE_POOL_MAX)
+        {
+            spr = _active.shift();
+            _resetSprite(spr);
+        }
+        else spr = new FlxSprite();
+
+        spr.exists = true;
+        spr.alive = true;
+        _active.push(spr);
+        return spr;
+    }
+
+    public static function recycleNote(spr:FlxSprite):Void
+    {
+        if (spr == null) return;
+        _active.remove(spr);
+        _resetSprite(spr);
+        spr.exists = false;
+        _pool.push(spr);
+    }
+
+    static function _recycleOffscreenNotes():Void
+    {
+        if (!_poolInitialized) return;
+
+        var bottom = FlxG.height + OFFSCREEN_RECYCLE_MARGIN;
+        var top = -OFFSCREEN_RECYCLE_MARGIN - 400;
+        var i = _active.length - 1;
+
+        while (i >= 0)
+        {
+            var spr = _active[i];
+            if (spr.y > bottom || spr.y < top)
+            {
+                _active.splice(i, 1);
+                _resetSprite(spr);
+                spr.exists = false;
+                _pool.push(spr);
+            }
+            i--;
+        }
+    }
+
+    static function _hardCullNotes(mode:Int):Void
+    {
+        if (!_poolInitialized) return;
+
+        var bottom = FlxG.height + OFFSCREEN_RECYCLE_MARGIN * 0.5;
+        var top = -OFFSCREEN_RECYCLE_MARGIN - 200;
+        var i = _active.length - 1;
+        var step = 2;
+
+        var index = 0;
+        while (i >= 0)
+        {
+            var spr = _active[i];
+            var cond = spr.y > bottom || spr.y < top || (index % step == 0);
+            if (cond)
+            {
+                _active.splice(i, 1);
+                _resetSprite(spr);
+                spr.exists = false;
+                spr.pixels = null;
+                _pool.push(spr);
+            }
+            index++;
+            i--;
+        }
+    }
+
+    static function _sampleFPS(elapsed:Float):Void
+    {
+        _avgFrameTime = _avgFrameTime * (1 - _SMOOTHING) + elapsed * _SMOOTHING;
+        if (_avgFrameTime <= 0) _avgFrameTime = 1 / 120;
+        currentFPS = 1.0 / _avgFrameTime;
+        if (currentFPS > 240.0) currentFPS = 240.0;
+    }
+
+    static function _detectThrottle(elapsed:Float):Bool
+    {
+        if (elapsed > FRAME_SPIKE) _throttleSpikes++;
+        else _throttleSpikes = (_throttleSpikes > 0 ? _throttleSpikes - 1 : 0);
+        return _throttleSpikes >= 3;
+    }
+
+    static function _memoryCleaner(elapsed:Float, mode:Int):Void
+    {
+        _memTimer += elapsed;
+        if (_memTimer < 4) return;
+        _memTimer = 0;
+
+        var i = 0;
+        var len = _pool.length;
+        while (i < len)
+        {
+            var spr = _pool[i];
+            if (spr != null && !spr.exists) spr.pixels = null;
+            i++;
+        }
+
+        if (botHitQueue.length > 16) botHitQueue.resize(12);
+    }
+
+    static function _shrinkPools(elapsed:Float, mode:Int, ram:Int):Void
+    {
+        _shrinkTimer += elapsed;
+        if (_shrinkTimer < 6) return;
+        _shrinkTimer = 0;
+
+        if (!_poolInitialized) return;
+
+        var target:Int;
+        if (ram >= RAM_LOW) target = NOTE_POOL_BASE;
+        else target = NOTE_POOL_MAX;
+
+        if (_pool.length > target)
+        {
+            while (_pool.length > target)
+            {
+                var spr = _pool.pop();
+                if (spr != null) FlxDestroyUtil.destroy(spr);
+            }
+        }
+    }
+
+    static function _hardRamLimit():Void
+    {
+        var i = 0;
+        var len = _active.length;
+        while (i < len)
+        {
+            var spr = _active[i];
+            if (spr != null)
+            {
+                spr.scale.set(0.7, 0.7);
+                spr.alpha = 0.7;
+            }
+            i++;
+        }
+        if (botHitQueue.length > 8) botHitQueue.resize(6);
+    }
+
+    static function _getUsedMB():Int
+    {
+        #if cpp
+        return Std.int(haxe.Sys.getMemoryUsage() / 1024 / 1024);
+        #else
+        return 0;
+        #end
+    }
+
+    static function _resetSprite(spr:FlxSprite):Void
+    {
+        spr.x = 0;
+        spr.y = 0;
+        spr.alpha = 1.0;
+        spr.angle = 0;
+        spr.scale.set(1, 1);
+        spr.velocity.set(0, 0);
+        spr.acceleration.set(0, 0);
+        spr.flipX = false;
+        spr.flipY = false;
+        spr.color = 0xFFFFFFFF;
+        spr.visible = true;
+    }
+
+    public static function preloadStageAndChars(stageId:String, dadId:String, bfId:String, ?gfId:String):Void
+    {
+        if (stageId != null && stageId != "" && stageId != lastStageId) { StageData.loadStage(stageId); lastStageId = stageId; }
+        if (dadId != null && dadId != "" && dadId != lastDadId) { preloadCharacter(dadId); lastDadId = dadId; }
+        if (bfId != null && bfId != "" && bfId != lastBfId) { preloadCharacter(bfId); lastBfId = bfId; }
+        if (gfId != null && gfId != "" && gfId != lastGfId) { preloadCharacter(gfId); lastGfId = gfId; }
+    }
+
+    public static function preloadCharacter(charId:String):Void
+    {
+        if (charId == null || charId == "") return;
+    }
+
+    public static function safeSwitchCharacter(oldChar:Dynamic, newId:String):Dynamic
+    {
+        if (newId == null || newId == "") return oldChar;
+        var x:Float = 0;
+        var y:Float = 0;
+        var flipX:Bool = false;
+        var flipY:Bool = false;
+        if (oldChar != null)
+        {
+            x = oldChar.x;
+            y = oldChar.y;
+            flipX = oldChar.flipX;
+            flipY = oldChar.flipY;
+        }
+        var newChar:Dynamic = null;
+        try
+        {
+        }
+        catch (e:Dynamic)
+        {
+            return oldChar;
+        }
+        if (oldChar != null)
+        {
+            FlxDestroyUtil.destroy(oldChar);
+            oldChar = null;
+        }
+        return newChar;
+    }
+
+    public static function normalizeRenderType(char:Dynamic):Void
+    {
+        if (char == null) return;
+        char.antialiasing = false;
+        if (char.scrollFactor != null) char.scrollFactor.set(1, 1);
+        else char.scrollFactor = new FlxPoint(1, 1);
+    }
+
+    public static function safeDisposeSprite(sprite:FlxSprite):Void
+    {
+        if (sprite != null) FlxDestroyUtil.destroy(sprite);
+    }
+
+    public static function safeDisposeGroup(group:FlxGroup):Void
+    {
+        if (group != null) FlxDestroyUtil.destroy(group);
+    }
+
+    public static function cleanupStage(bgGroup:FlxGroup, fgGroup:FlxGroup, extra:Array<FlxSprite>):Void
+    {
+        if (bgGroup != null) FlxDestroyUtil.destroy(bgGroup);
+        if (fgGroup != null) FlxDestroyUtil.destroy(fgGroup);
+        if (extra != null) for (spr in extra) if (spr != null) FlxDestroyUtil.destroy(spr);
+    }
+}

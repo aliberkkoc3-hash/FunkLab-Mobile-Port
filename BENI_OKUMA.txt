@@ -1,0 +1,77 @@
+##################################################################################
+#         🚨 DİKKAT: EKRANA DOKUNMADAN ÖNCE OKU (YA DA OKUMA) 🚨          #
+##################################################################################
+
+FunkLab Mobile v0.1.1 — "Parmaklara Paydos, Bataryaya El Fatiha" Sürümü
+
+Burayı okuyorsan tebrikler: Telefonun ekranındaki devasa "BENİ_OKUMA" yazısını başarıyla görmezden geldin. Bu da demek oluyor ki ya aşırı meraklısın ya da Funk-O-Matic 9000 kusursuzluğu karşısında hipnotize oldun. Kaosa hoş geldin yolcu.
+
+Bu mod, "FNF oynamak istiyorum ama başparmağım ekrana yetişmiyor" diyen mobilciler için bir kutsanma törenidir. Beceriksizlik artık senin için bir sorun değil, sadece telefonunun işlemcisine yüklediğin bir sorumluluk.
+
+##################################################################################
+#             FUNK-O-MATIC 9000: CEBİNDEKİ RİTİM CANAVARI                        #
+##################################################################################
+
+Funk-O-Matic 9000, AliBerk’in mutfağında %10 kod ve %90 "Dokunmatik ekran çok zor abi ya" isyanıyla mobil dünyaya port edildi. O artık sadece bir kod değil; 
+- Telefon camının en büyük dostu (çünkü hiç dokunmuyor),
+- İşlemcinin termal macun düşmanı,
+- Ve senin otobüste millete "Bakın nasıl proyum" diye yutturduğun yalanın başrolüdür.
+
+Sen sadece telefonu masaya bırakıp "Vay be, ne biçim kombolar yapıyorum" diye artistlik yaparken, o arka planda işlemcinin canını okuyor. Saygı duy, bataryanı ona feda et.
+
+##################################################################################
+#                 YAP REİS / YASAK HEMŞERİM (MOBİL KILAVUZ)                      #
+##################################################################################
+
+YAP REİS:
+✅ Otobüste/Metroda telefonu yanındakinin göreceği şekilde tut ve Funk-O-Matic 9000 oynarken parmaklarını havada senkronize oynat. "Ritim Tanrısı" sanılmanın tadını çıkar.
+✅ Funk-O-Matic 9000 en zor şarkıyı geçerken git kendine bir çay koy, gelince telefonun hala patlamadığını kontrol et.
+✅ Ekranın kirlenmesinden bıktıysan bu modu aç ve ellerini yıka. Pırıl pırıl bir oyun deneyimi!
+✅ Funk-O-Matic 9000'e bataryandan %5 bağışla. O enerjiyle neler yapıyor göreceksin.
+
+YASAK HEMŞERİM:
+❌ Funk-O-Matic 9000 senin parmağından daha hızlı dokunuyor diye telefona küsme. O bir makine, sen ise sadece bir kullanıcı.
+❌ "Telefonum neden soba gibi oldu?" diye ağlama. Funk-O-Matic 9000 nota tokatlamaktan terliyor, normaldir.
+❌ Funk-O-Matic 9000 Boyfriend’den neden daha yetenekli olduğunu sorgulama, mobil cihazların onuru söz konusu.
+❌ Modu "Kendi ellerimle oynadım" diye parayla satmaya kalkma. Bedava tembellik herkesin hakkıdır.
+
+##################################################################################
+#                   MOBİL SIKINTILAR VE VAROLUŞSAL KAYGILAR                     #
+##################################################################################
+
+Bu bir Mobil Porttur. Haliyle bazı "mobil özellikler" (siz hata diyorsunuz) olabilir:
+1. Telefonun elinde erimeye başlarsa sakın suyla soğutma, Funk-O-Matic 9000 su sevmez.
+2. Oyun aniden kapanırsa bil ki bot, telefonunun o anki düşük şarjından tiksinmiştir.
+3. Eğer Funk-O-Matic 9000 kendi kendine rehberindeki kişileri arayıp ritim dersi vermeye başlarsa, telefonu yavaşça yere bırak ve sessizce odadan çık.
+
+##################################################################################
+#                           VALLAHİ BİTTİ (HADİ YALLAH)                          #
+##################################################################################
+
+Bu modda emeği geçenler:
+- [BF]AliBerk[BF]: Funk-O-Matic 9000'i cebinize sığdıran, mobil portların efendisi ve kodlayıcı.
+- The Pixel Devs Studio: Orijinal kaosun ve üşengeçliğin mimarları.
+- Funk-O-Matic 9000: Bu şovun tek gerçek sahibi ve cebindeki ritim ilahı.
+
+Son Uyarı: Funk-O-Matic 9000 eğer ekrandan sana bakıp "Sıra ne zaman bende?" diye sorarsa, uygulamayı hemen kapat ve bir süre dışarı çıkıp çimenlere dokun.
+
+##################################################################################
+#                                 ASCII SANATI                                   #
+##################################################################################
+
+          _______________________
+         |  ___________________  |
+         | |                   | |
+         | |  FUNK-O-MATIC     | |
+         | |      9000         | |
+         | |  MOBILE POWER     | |
+         | |                   | |
+         | |   [SKILL: 100]    | |
+         | |   [HEAT: 9000]    | |
+         | |___________________| |
+         |      [  ( O )  ]      |
+         |_______________________|
+
+##################################################################################
+#          The Pixel Devs Studio & [BF]AliBerk[BF] sundu: Parmaklara özgürlük!           #
+##################################################################################

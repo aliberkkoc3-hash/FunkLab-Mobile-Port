@@ -1,0 +1,95 @@
+package funkin.modding;
+
+import flixel.FlxG;
+import funkin.save.Save;
+import funkin.ui.options.OptionsState;
+import funkin.ui.options.PreferencesMenu;
+import funkin.modding.module.Module;
+
+/**
+ * Module to disable AdMob advertisements via an Options Menu toggle.
+ */
+class AdDisablerModule extends Module
+{
+    // Default to true so ads are disabled by default
+    public static var adsDisabled:Bool = true;
+
+    var adSettingsPageInjected:Bool = false;
+    static var _saveInitialized:Bool = false;
+
+    public function new()
+    {
+        super("AdDisablerModule");
+    }
+
+    override function onStateChangeEnd(event)
+    {
+        var state = event.targetState;
+        if (!(state is OptionsState)) { adSettingsPageInjected = false; return; }
+        if (adSettingsPageInjected) return;
+        adSettingsPageInjected = true;
+
+        if (!_saveInitialized)
+        {
+            var save = Save.instance.modOptions.get("adDisabler");
+            if (save == null)
+            {
+                save = { enabled: true };
+                Save.instance.modOptions.set("adDisabler", save);
+                Save.instance.flush();
+            }
+
+            adsDisabled = save.enabled;
+            _saveInitialized = true;
+        }
+
+        var save = Save.instance.modOptions.get("adDisabler");
+        var codex = state.optionsCodex;
+
+        var page = codex.addPage("adDisabler", new PreferencesMenu());
+        page.onExit.add(function() { codex.switchPage("options"); });
+
+        for (d in page.items) d.destroy();
+        for (d in page.preferenceItems) d.destroy();
+        page.items.clear();
+        page.preferenceItems.clear();
+        page.preferenceDesc = [];
+
+        var options = codex.pages.get("options");
+        var moved = [];
+
+        for (i => item in options.items.members)
+        {
+            if (i < 2) continue;
+            item.y += 80;
+            options.items.remove(item);
+            moved.push(item);
+        }
+
+        var btn = options.items.createItem(
+            0,
+            options.items.members[1].y + 80,
+            "AD SETTINGS",
+            "bold",
+            function() { options.onSwitch.dispatch("adDisabler"); }
+        );
+        btn.x = (FlxG.width - btn.width) / 2;
+
+        for (item in moved) options.items.add(item);
+
+        page.createPrefItemCheckbox(
+            "Disable Ads",
+            "Disables all AdMob banner and interstitial advertisements. Removes interruptions and saves data/battery.",
+            function(v) {
+                save.enabled = v;
+                adsDisabled = v;
+                Save.instance.flush();
+                
+                #if FEATURE_MOBILE_ADVERTISEMENTS
+                if (adsDisabled) funkin.mobile.util.AdMobUtil.removeBanner();
+                #end
+            },
+            save.enabled
+        );
+    }
+}

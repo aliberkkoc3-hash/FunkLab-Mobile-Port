@@ -1,0 +1,21 @@
+{
+  "title": "FunkLab (Mobile-Port) - Botun Hükmü",
+  "description": "Parmak yorgunluğuna son! Efsanevi FunkLab modunun resmi olmayan mobil sürümü. Bot çalar, sen izlersin. :D",
+  "contributors": [
+    {
+      "name": "[BF]AliBerk[BF]",
+      "role": "Mobil Port, Kodlayıcı & Parmak Kurtarıcı"
+    },
+    {
+      "name": "The Pixel Devs Studio",
+      "role": "Orjinal Mod & Kaos Yaratıcısı"
+    },
+    {
+      "name": "Funk-O-Matic 9000",
+      "role": "Kusursuz Ritim İlahı, Asıl Başrol"
+    }
+  ],
+  "api_version": "0.8.6",
+  "mod_version": "0.1.1",
+  "license": "CC BY-NC 4.0 (FunkLab Custom License)"
+}
