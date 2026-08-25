@@ -69,7 +69,7 @@ class AdDisablerModule extends Module
         var btn = options.items.createItem(
             0,
             options.items.members[1].y + 80,
-            "AD SETTINGS",
+            "Reklam Ayarları",
             "bold",
             function() { options.onSwitch.dispatch("adDisabler"); }
         );
@@ -78,8 +78,8 @@ class AdDisablerModule extends Module
         for (item in moved) options.items.add(item);
 
         page.createPrefItemCheckbox(
-            "Disable Ads",
-            "Disables all AdMob banner and interstitial advertisements. Removes interruptions and saves data/battery.",
+            "Reklamları Kapat",
+            "Tüm AdMob banner ve geçiş reklamlarını devre dışı bırakır. Kesintileri ortadan kaldırır; veri ve pil tasarrufu sağlar.",
             function(v) {
                 save.enabled = v;
                 adsDisabled = v;
