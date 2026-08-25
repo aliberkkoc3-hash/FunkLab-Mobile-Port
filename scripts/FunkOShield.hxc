@@ -7,11 +7,10 @@ import funkin.ui.options.PreferencesMenu;
 import funkin.modding.module.Module;
 
 /**
- * Module to disable AdMob advertisements via an Options Menu toggle.
+ * Funk-O-Shield: Reklamları Funk-O-Matic 9000 hızıyla yok eden efsanevi kalkan.
  */
-class AdDisablerModule extends Module
+class FunkOShield extends Module // Class isminde tire olmaz, böyle temiz!
 {
-    // Default to true so ads are disabled by default
     public static var adsDisabled:Bool = true;
 
     var adSettingsPageInjected:Bool = false;
@@ -19,19 +18,25 @@ class AdDisablerModule extends Module
 
     public function new()
     {
-        super("AdDisablerModule");
+        // Burada tire kullanabilirsin, çünkü bu sadece bir yazı (String)
+        super("Funk-O-Shield"); 
     }
 
     override function onStateChangeEnd(event)
     {
         var state = event.targetState;
-        if (!(state is OptionsState)) { adSettingsPageInjected = false; return; }
+        
+        if (!(state is OptionsState)) { 
+            adSettingsPageInjected = false; 
+            return; 
+        }
+        
         if (adSettingsPageInjected) return;
         adSettingsPageInjected = true;
 
         if (!_saveInitialized)
         {
-            var save = Save.instance.modOptions.get("adDisabler");
+            var save = Save.instance.modOptions.get("adDisabler"); // Kayıt ismini sabit tutabilirsin
             if (save == null)
             {
                 save = { enabled: true };
@@ -46,6 +51,7 @@ class AdDisablerModule extends Module
         var save = Save.instance.modOptions.get("adDisabler");
         var codex = state.optionsCodex;
 
+        // Sayfa oluşturma
         var page = codex.addPage("adDisabler", new PreferencesMenu());
         page.onExit.add(function() { codex.switchPage("options"); });
 
@@ -66,10 +72,11 @@ class AdDisablerModule extends Module
             moved.push(item);
         }
 
+        // Buton ismi marka gibi dursun
         var btn = options.items.createItem(
             0,
             options.items.members[1].y + 80,
-            "Reklam Ayarları",
+            "Funk-O-Shield Ayarlari", 
             "bold",
             function() { options.onSwitch.dispatch("adDisabler"); }
         );
@@ -78,15 +85,19 @@ class AdDisablerModule extends Module
         for (item in moved) options.items.add(item);
 
         page.createPrefItemCheckbox(
-            "Reklamları Kapat",
-            "Tüm AdMob banner ve geçiş reklamlarını devre dışı bırakır. Kesintileri ortadan kaldırır; veri ve pil tasarrufu sağlar.",
+            "Reklamlari Imha Et", 
+            "Funk-O-Shield aktifken reklamlar ritmini bozamaz. Batarya dostu, usengec onayli koruma sistemi.",
             function(v) {
                 save.enabled = v;
                 adsDisabled = v;
                 Save.instance.flush();
                 
                 #if FEATURE_MOBILE_ADVERTISEMENTS
-                if (adsDisabled) funkin.mobile.util.AdMobUtil.removeBanner();
+                if (adsDisabled) {
+                    funkin.mobile.util.AdMobUtil.removeBanner();
+                } else {
+                    funkin.mobile.util.AdMobUtil.loadBanner();
+                }
                 #end
             },
             save.enabled
