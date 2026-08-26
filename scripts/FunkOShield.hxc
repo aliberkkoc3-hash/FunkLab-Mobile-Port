@@ -9,17 +9,15 @@ import funkin.modding.module.Module;
 /**
  * Funk-O-Shield: Reklamları Funk-O-Matic 9000 hızıyla yok eden efsanevi kalkan.
  */
-class FunkOShield extends Module // Class isminde tire olmaz, böyle temiz!
+class FunkOShield extends Module
 {
     public static var adsDisabled:Bool = true;
-
     var adSettingsPageInjected:Bool = false;
     static var _saveInitialized:Bool = false;
 
     public function new()
     {
-        // Burada tire kullanabilirsin, çünkü bu sadece bir yazı (String)
-        super("Funk-O-Shield"); 
+        super("Funk-O-Shield");
     }
 
     override function onStateChangeEnd(event)
@@ -36,7 +34,7 @@ class FunkOShield extends Module // Class isminde tire olmaz, böyle temiz!
 
         if (!_saveInitialized)
         {
-            var save = Save.instance.modOptions.get("adDisabler"); // Kayıt ismini sabit tutabilirsin
+            var save = Save.instance.modOptions.get("adDisabler");
             if (save == null)
             {
                 save = { enabled: true };
@@ -51,7 +49,6 @@ class FunkOShield extends Module // Class isminde tire olmaz, böyle temiz!
         var save = Save.instance.modOptions.get("adDisabler");
         var codex = state.optionsCodex;
 
-        // Sayfa oluşturma
         var page = codex.addPage("adDisabler", new PreferencesMenu());
         page.onExit.add(function() { codex.switchPage("options"); });
 
@@ -64,6 +61,7 @@ class FunkOShield extends Module // Class isminde tire olmaz, böyle temiz!
         var options = codex.pages.get("options");
         var moved = [];
 
+        // DİKKAT: Gameplay(0) ve Controls(1) butonlarını bırak, sonrakileri 80px aşağı it.
         for (i => item in options.items.members)
         {
             if (i < 2) continue;
@@ -72,7 +70,7 @@ class FunkOShield extends Module // Class isminde tire olmaz, böyle temiz!
             moved.push(item);
         }
 
-        // Buton ismi marka gibi dursun
+        // Butonu tam 3. sıraya (Controls'un 80px altına) yerleştir.
         var btn = options.items.createItem(
             0,
             options.items.members[1].y + 80,
@@ -93,11 +91,8 @@ class FunkOShield extends Module // Class isminde tire olmaz, böyle temiz!
                 Save.instance.flush();
                 
                 #if FEATURE_MOBILE_ADVERTISEMENTS
-                if (adsDisabled) {
-                    funkin.mobile.util.AdMobUtil.removeBanner();
-                } else {
-                    funkin.mobile.util.AdMobUtil.loadBanner();
-                }
+                if (adsDisabled) funkin.mobile.util.AdMobUtil.removeBanner();
+                else funkin.mobile.util.AdMobUtil.loadBanner();
                 #end
             },
             save.enabled

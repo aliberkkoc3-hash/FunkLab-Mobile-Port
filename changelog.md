@@ -4,6 +4,29 @@ Bütün değişimler burada. Okumayacağını biliyoruz ama yine de yazdık. Ned
 
 ---
 
+## [v0.1.3] - "NinjaMuffin Bizi Yıldıramaz & Menü Barışı" Güncellemesi 🛡️
+*Tarih: 26-08-2026 03:11 (NinjaMuffin'in rahat durmadığı, bizim de pes etmediğimiz gün)*
+
+NinjaMuffin oyunu 0.8.7 yaptı diye Funk-O-Matic 9000'in emekli olacağını mı sandınız? Biz bitti demeden bitmez! Bu güncelleme ile hem yeni FNF sürümüne uyum sağladık hem de menüdeki iç içe geçme krizini Funk-O-Matic hızıyla çözdük.
+
+### 🚀 0.8.7 Savaş Cephesi (Uyumluluk)
+- **API v0.8.7 Desteği:** Modun beyni olan `api_version` NinjaMuffin'in en son sürümüyle tam uyumlu hale getirildi. Mod artık 0.8.7 sürümünde sorunsuz çalışıyor.
+- **.hxc Zırhı:** Modüllerin `.hxc` (HScript-based Module) uzantıları 0.8.7 motorunun kalbine sızacak şekilde doğrulandı ve yapılandırıldı.
+
+### 🔧 Arayüz Devrimi (Menü Fix)
+- **Buton Karmaşasına Son:** `FunkOShield` ve `FunkTurbo` butonlarının "Bu koltuk benim!" kavgası sona erdi. Y koordinatları milimetrik olarak ayarlandı, artık üst üste binmiyorlar.
+- **Düzenli Menü Sıralaması:** Ayarlar menüsü artık Gameplay, Controls, **Funk-O-Shield** ve **Funk-O-Turbo** şeklinde jilet gibi bir sıralamaya sahip. 
+- **Dinamik Kaydırma:** Yeni butonlar diğer seçenekleri (Graphics, Audio vb.) nazikçe aşağı itiyor, menü düzeni bozulmuyor.
+
+### ⚙️ Funk-O-Matic Performans
+- **Stabilite Artışı:** 0.8.7 motorunun getirdiği ekstra yükleri hafifletmek için `FunkTurboModule` içindeki bellek temizleme döngüsü optimize edildi.
+- **Acil Temizlik:** RAM 700MB sınırını geçtiğinde bot artık daha agresif bir temizlik yaparak oyunun akıcılığını koruyor.
+
+### 🔮 NinjaMuffin'e Mesaj
+"Sen istediğin kadar sürüm çıkar NinjaMuffin, Funk-O-Matic 9000 her zaman bir adım önünde olacak. Biz kodladık, sen güncelledin, bot yine nota tokatladı!"
+
+---
+
 ## [v0.1.2] - "Kurumsal Kimlik & Estetik Operasyonu" 🎨🛡️
 *Tarih: 26-08-2026 02:44 (Botun aynaya bakıp 'Ben çok havalıyım' dediği gün)*
 

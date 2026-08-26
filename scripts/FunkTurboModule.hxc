@@ -11,29 +11,22 @@ import funkin.ui.options.PreferencesMenu;
 import funkin.modding.module.Module;
 
 /**
- * FunkTurbo Ultra: Tost makinesinden hallice telefonlar için optimizasyon canavarı.
- * Funk-O-Matic 9000'in akıcı çalışması için işlemciye kırbaç vuran modül.
+ * FunkTurbo Ultra: Tost makinesi telefonlar için optimizasyon canavarı.
  */
 class FunkTurboModule extends Module
 {
     public static var gameTurboEnabled:Bool = false;
     var turboPageInjected:Bool = false;
 
-    // --- Limitler ve Eşik Değerleri ---
     public static inline var NOTE_POOL_MAX:Int = 160; 
-    public static inline var RAM_CRITICAL:Int = 700; // MB cinsinden
-    public static inline var FPS_TARGET:Float = 60.0;
-
-    static var _pool:Array<FlxSprite> = [];
+    public static inline var RAM_CRITICAL:Int = 700;
     static var _active:Array<FlxSprite> = [];
+    static var _pool:Array<FlxSprite> = [];
     static var _poolInitialized:Bool = false;
 
     static var _avgFrameTime:Float = 1 / 60;
     public static var currentFPS:Float = 60.0;
     public static var botHitQueue:Array<Dynamic> = [];
-
-    static var _memTimer:Float = 0;
-    static var _throttleSpikes:Int = 0;
     static var _globalCleanTimer:Float = 0;
 
     public function new()
@@ -55,20 +48,29 @@ class FunkTurboModule extends Module
             Save.instance.modOptions.set("funkTurbo", save);
             Save.instance.flush();
         }
-
         gameTurboEnabled = save.enabled;
         
         var codex = state.optionsCodex;
         var page = codex.addPage("funkTurbo", new PreferencesMenu());
         page.onExit.add(function() { codex.switchPage("options"); });
 
-        // Menü Temizliği
         for (d in page.items) d.destroy();
         page.items.clear();
 
         var options = codex.pages.get("options");
-        
-        // Buton Enjeksiyonu
+        var moved = [];
+
+        // DİKKAT: Gameplay(0) ve Controls(1) butonlarını bırak, diğerlerini 160px aşağı it.
+        // (Böylece hem Shield hem Turbo için yer açılır)
+        for (i => item in options.items.members)
+        {
+            if (i < 2) continue;
+            item.y += 160;
+            options.items.remove(item);
+            moved.push(item);
+        }
+
+        // Butonu tam 4. sıraya (Controls'un 160px altına) yerleştir.
         var btn = options.items.createItem(
             0, 
             options.items.members[1].y + 160, 
@@ -78,129 +80,42 @@ class FunkTurboModule extends Module
         );
         btn.x = (FlxG.width - btn.width) / 2;
 
+        for (item in moved) options.items.add(item);
+
         page.createPrefItemCheckbox(
             "Funk-O-Turbo Ultra",
-            "Patates telefonlar ve tost makineleri icin ozel mod. 1GB RAM cihazlarda bile 60 FPS hedefler. Animasyonlari kirpar, dokulari azaltir ve islemciyi Funk-O-Matic hizina zorlar.",
+            "Patates telefonlar icin ozel mod. Animasyonlari kirpar, dokulari azaltir ve islemciyi Funk-O-Matic hizina zorlar.",
             function(v) {
                 save.enabled = v;
                 gameTurboEnabled = v;
                 Save.instance.flush();
-                if (v) _onTurboEnable();
+                if (v) FlxG.drawFramerate = 60;
             },
             save.enabled
         );
     }
 
-    static function _onTurboEnable():Void
-    {
-        botHitQueue = [];
-        FlxG.drawFramerate = 60;
-        trace("FunkTurbo: Islemciye korbac vuruldu, patates mod aktif!");
-    }
-
-    /**
-     * Ana döngüde çağrılan FunkTurbo kalbi.
-     */
     public static function turboTick(elapsed:Float):Void
     {
-        _calculatePerformance(elapsed);
+        _avgFrameTime = _avgFrameTime * 0.9 + elapsed * 0.1;
+        currentFPS = 1.0 / _avgFrameTime;
+
         if (!gameTurboEnabled) return;
 
-        var ram = _getUsedMB();
-        var isThrottling = (elapsed > 0.033); // 30 FPS altı düşüş tespiti
-
-        // --- Dinamik Optimizasyon ---
-        _optimizeNotes(isThrottling, ram);
-        _optimizeWorld(elapsed);
-        
-        if (ram > RAM_CRITICAL) _emergencyClean();
-
-        // Bot kuyruğunu Funk-O-Matic hızıyla erit
-        _processBotQueue(ram > RAM_CRITICAL ? 4 : 10);
-    }
-
-    static function _optimizeNotes(lowPerf:Bool, ram:Int):Void
-    {
-        var i = _active.length - 1;
-        while (i >= 0)
-        {
-            var spr = _active[i];
-            if (spr == null) { i--; continue; }
-
-            // Ekran dışı notaları acımadan geri dönüştür
-            if (spr.y > FlxG.height + 100 || spr.y < -300)
-            {
-                recycleNote(spr);
-            }
-            else if (lowPerf || ram > 600)
-            {
-                // Düşük performans modu: Notaları basitleştir
-                spr.antialiasing = false;
-                spr.alpha = 0.8;
-                if (ram > RAM_CRITICAL) spr.visible = (Math.abs(spr.y - (FlxG.height * 0.8)) < 300);
-            }
-            i--;
-        }
-    }
-
-    static function _optimizeWorld(elapsed:Float):Void
-    {
         _globalCleanTimer += elapsed;
-        if (_globalCleanTimer < 0.5) return;
-        _globalCleanTimer = 0;
-
-        // Antialiasing'i küresel olarak kapat (Performans canavarı)
-        FlxG.camera.antialiasing = false;
-        if (FlxG.game != null) FlxG.game.stage.quality = "low";
-
-        // Karakter ve Stage animasyonlarını kırp
-        var state:Dynamic = FlxG.state;
-        var targets = ["dad", "boyfriend", "gf"];
-        for (t in targets)
-        {
-            var char = Reflect.getProperty(state, t);
-            if (char != null)
-            {
-                char.antialiasing = false;
-                if (char.animationsArray != null && char.animationsArray.length > 5)
-                    char.animationsArray.resize(5); // Sadece temel animasyonlar kalsın
-            }
+        if (_globalCleanTimer > 0.5) {
+            _globalCleanTimer = 0;
+            FlxG.camera.antialiasing = false;
+            if (FlxG.game != null) FlxG.game.stage.quality = "low";
         }
-    }
 
-    static function _processBotQueue(max:Int):Void
-    {
+        // Bot kuyruğunu erit
         var count = 0;
-        while (botHitQueue.length > 0 && count < max)
-        {
+        while (botHitQueue.length > 0 && count < 8) {
             var n = botHitQueue.shift();
-            try {
-                n.wasGoodHit = true;
-                if (n.kill != null) n.kill();
-            } catch(e:Dynamic) {}
+            try { n.wasGoodHit = true; if (n.kill != null) n.kill(); } catch(e:Dynamic) {}
             count++;
         }
-    }
-
-    static function _emergencyClean():Void
-    {
-        if (_pool.length > 20) _pool.resize(20);
-        if (botHitQueue.length > 10) botHitQueue.resize(5);
-        // GPU üzerindeki gereksiz dokuları temizlemeye zorla
-        #if cpp
-        cpp.vm.Gc.run(true);
-        #end
-    }
-
-    public static function spawnNote():FlxSprite
-    {
-        if (!_poolInitialized) { _pool = []; _active = []; _poolInitialized = true; }
-
-        var spr:FlxSprite = (_pool.length > 0) ? _pool.pop() : new FlxSprite();
-        spr.exists = spr.alive = true;
-        spr.antialiasing = false;
-        _active.push(spr);
-        return spr;
     }
 
     public static function recycleNote(spr:FlxSprite):Void
@@ -210,20 +125,5 @@ class FunkTurboModule extends Module
         spr.exists = false;
         if (_pool.length < NOTE_POOL_MAX) _pool.push(spr);
         else spr.destroy();
-    }
-
-    static function _calculatePerformance(elapsed:Float):Void
-    {
-        _avgFrameTime = _avgFrameTime * 0.9 + elapsed * 0.1;
-        currentFPS = 1.0 / _avgFrameTime;
-    }
-
-    static function _getUsedMB():Int
-    {
-        #if cpp
-        return Std.int(haxe.Sys.getMemoryUsage() / 1024 / 1024);
-        #else
-        return 0;
-        #end
     }
 }
