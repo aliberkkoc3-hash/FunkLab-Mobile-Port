@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TextureAtlas imagePath="discord.png">
+	<!-- Funk-O-Matic 9000 tarafından AliBerk için kalibre edildi -->
+	
+	<!-- IDLE (Sağ Sütun: Mor/Mavi Butonlar) -->
+	<SubTexture name="discord idle0000" x="597" y="0" width="598" height="155" frameX="0" frameY="0" frameWidth="598" frameHeight="155"/>
+	<SubTexture name="discord idle0001" x="597" y="155" width="598" height="154" frameX="0" frameY="0" frameWidth="598" frameHeight="154"/>
+	<SubTexture name="discord idle0002" x="597" y="309" width="598" height="155" frameX="0" frameY="0" frameWidth="598" frameHeight="155"/>
+
+	<!-- SELECTED (Sol Sütun: Altın/Sarı Butonlar) -->
+	<SubTexture name="discord selected0000" x="0" y="0" width="597" height="155" frameX="0" frameY="0" frameWidth="597" frameHeight="155"/>
+	<SubTexture name="discord selected0001" x="0" y="155" width="597" height="154" frameX="0" frameY="0" frameWidth="597" frameHeight="154"/>
+	<SubTexture name="discord selected0002" x="0" y="309" width="597" height="155" frameX="0" frameY="0" frameWidth="597" frameHeight="155"/>
+</TextureAtlas>

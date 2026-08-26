@@ -1,0 +1,150 @@
+package funkin.modding;
+
+import flixel.FlxSprite;
+import flixel.group.FlxGroup;
+import flixel.math.FlxPoint;
+import flixel.util.FlxDestroyUtil;
+import flixel.FlxG;
+import funkin.save.Save;
+import funkin.ui.options.OptionsState;
+import funkin.ui.options.PreferencesMenu;
+import funkin.modding.module.Module;
+
+/**
+ * FunkTurbo Ultra: Tost makinesi telefonlar için optimizasyon canavarı.
+ */
+class FunkTurboModule extends Module
+{
+    public static var gameTurboEnabled:Bool = false;
+    var turboPageInjected:Bool = false;
+
+    public static inline var NOTE_POOL_MAX:Int = 160; 
+    public static inline var RAM_CRITICAL:Int = 700;
+    static var _active:Array<FlxSprite> = [];
+    static var _pool:Array<FlxSprite> = [];
+    static var _poolInitialized:Bool = false;
+
+    static var _avgFrameTime:Float = 1 / 60;
+    public static var currentFPS:Float = 60.0;
+    public static var botHitQueue:Array<Dynamic> = [];
+    static var _globalCleanTimer:Float = 0;
+
+    public function new()
+    {
+        super("FunkTurbo");
+    }
+
+    override function onStateChangeEnd(event)
+    {
+        var state = event.targetState;
+        if (!(state is OptionsState)) { turboPageInjected = false; return; }
+        if (turboPageInjected) return;
+        turboPageInjected = true;
+
+        var save = Save.instance.modOptions.get("funkTurbo");
+        if (save == null)
+        {
+            save = { enabled: false };
+            Save.instance.modOptions.set("funkTurbo", save);
+            Save.instance.flush();
+        }
+        gameTurboEnabled = save.enabled;
+        
+        var codex = state.optionsCodex;
+        var page = codex.addPage("funkTurbo", new PreferencesMenu());
+        page.onExit.add(function() { codex.switchPage("options"); });
+
+        for (d in page.items) d.destroy();
+        page.items.clear();
+
+        var options = codex.pages.get("options");
+        var moved = [];
+
+        // DİKKAT: Gameplay(0) ve Controls(1) butonlarını bırak, diğerlerini 160px aşağı it.
+        // (Böylece hem Shield hem Turbo için yer açılır)
+        for (i => item in options.items.members)
+        {
+            if (i < 2) continue;
+            item.y += 160;
+            options.items.remove(item);
+            moved.push(item);
+        }
+
+        // Butonu tam 4. sıraya (Controls'un 160px altına) yerleştir.
+        var btn = options.items.createItem(
+            0, 
+            options.items.members[1].y + 160, 
+            "FUNK-O-TURBO AYARLARI", 
+            "bold", 
+            function() { options.onSwitch.dispatch("funkTurbo"); }
+        );
+        btn.x = (FlxG.width - btn.width) / 2;
+
+        for (item in moved) options.items.add(item);
+
+        page.createPrefItemCheckbox(
+            "Funk-O-Turbo Ultra",
+            "Patates telefonlar icin ozel mod. Animasyonlari kirpar, dokulari azaltir ve islemciyi Funk-O-Matic hizina zorlar.",
+            function(v) {
+                save.enabled = v;
+                gameTurboEnabled = v;
+                Save.instance.flush();
+                if (v) FlxG.drawFramerate = 60;
+            },
+            save.enabled
+        );
+    }
+
+    public static function turboTick(elapsed:Float):Void
+    {
+        // FPS Ornekleme
+        _avgFrameTime = _avgFrameTime * 0.9 + elapsed * 0.1;
+        if (_avgFrameTime > 0) currentFPS = 1.0 / _avgFrameTime;
+
+        if (!gameTurboEnabled) return;
+
+        // --- MOBIL STABILIZASYON OPERASYONU ---
+        _globalCleanTimer += elapsed;
+        if (_globalCleanTimer > 0.4) // Mobil cihazlar icin 400ms ideal temizlik araligidir
+        {
+            _globalCleanTimer = 0;
+            
+            // GPU Yukunu Azalt
+            FlxG.camera.antialiasing = false;
+            if (FlxG.game != null && FlxG.game.stage != null) 
+                FlxG.game.stage.quality = "low";
+
+            // Mobil RAM Tasfiyesi
+            #if cpp
+            if (Std.int(haxe.Sys.getMemoryUsage() / 1024 / 1024) > RAM_CRITICAL) {
+                cpp.vm.Gc.run(true); // Bellek sismesini engellemek icin agresif temizlik
+            }
+            #end
+        }
+
+        // --- MOBIL VURUS KUYGURU TASFIYESI ---
+        // Islemciyi asiri yormadan, seri vuruslarda gecikmeyi onlemek icin limit 12'ye cekildi.
+        var maxProcess:Int = 12; 
+        var count:Int = 0;
+        while (botHitQueue.length > 0 && count < maxProcess)
+        {
+            var n = botHitQueue.shift();
+            if (n != null) {
+                try {
+                    n.wasGoodHit = true;
+                    if (n.kill != null) n.kill();
+                } catch(e:Dynamic) {}
+            }
+            count++;
+        }
+    }
+
+    public static function recycleNote(spr:FlxSprite):Void
+    {
+        if (spr == null) return;
+        _active.remove(spr);
+        spr.exists = false;
+        if (_pool.length < NOTE_POOL_MAX) _pool.push(spr);
+        else spr.destroy();
+    }
+}

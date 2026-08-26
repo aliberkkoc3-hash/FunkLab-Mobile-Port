@@ -1,0 +1,81 @@
+package funkin.modding;
+
+import funkin.modding.module.Module;
+import funkin.graphics.FunkinSprite;
+import funkin.ui.mainmenu.MainMenuState;
+import funkin.ui.UIState;
+import funkin.util.WindowUtil;
+import flixel.FlxG;
+
+/**
+ * FunkLab Discord Bağlantısı: Üşengeçler birleşsin!
+ * Funk-O-Matic 9000 hakkındaki teorilerinizi tartışmak için tek adres.
+ */
+class FunkLabDiscordButton extends Module {
+    // Topluluğun kalbine giden gizli geçit
+    final url = "https://discord.gg/khpuvUcGMz";
+    
+    // Butonun menüde tekrar tekrar oluşmasını engellemek için kontrol
+    var buttonInjected:Bool = false;
+
+    public function new() {
+        // SuperBot ismini çöpe attık, artık FunkLab var!
+        super("FunkLabDiscordButton", 1);
+    }
+
+    override function onStateChangeEnd(event) {
+        // Sadece Ana Menüde (MainMenuState) çalış
+        if (event.targetState is MainMenuState) {
+            var state:MainMenuState = cast event.targetState;
+            var items = state.menuItems;
+
+            // Eğer buton zaten varsa veya menü öğeleri boşsa işlem yapma
+            if (items == null || items.members.contains(items.getItem('discord'))) return;
+
+            // --- Menü Öğelerini Kaydırma Algoritması ---
+            var prevItems = [];
+            
+            // Genelde FNF menüsünde Story, Freeplay, Options, Credits olur (ilk 4 öğe)
+            // Biz butonu bu dörtlüden hemen sonraya, havalı bir şekilde yerleştiriyoruz.
+            for (i => item in items.members) {
+                if (i < 4) continue;
+
+                item.y += 160; // Diğer öğeleri aşağı it
+                items.remove(item);
+                prevItems.push(item);
+            }
+
+            // --- Discord Butonunu Yaratma ---
+            state.createMenuItem('discord', 'mainmenu/discord', () ->
+            {
+                // Bot gibi hızlı bir geçiş ve URL açılışı
+                state.uiStateMachine.transition(UIState.Idle);
+                WindowUtil.openURL(url);
+                trace("FunkLab: Topluluk sunucusuna gidiliyor... Bot seni ozleyecek.");
+            });
+
+            var menuItem = items.getItem('discord');
+            if (menuItem != null) {
+                menuItem.x = FlxG.width / 2;
+                // 4. sıradaki (index 3) butonun altına yerleştir
+                menuItem.y = items.members[3].y + 160;
+                
+                // Mobil cihazlarda daha pürüzsüz kaydırma efektleri
+                menuItem.scrollFactor.x = FlxG.onMobile ? 0.4 : 0;
+                menuItem.scrollFactor.y = (items.members.length - 1) / 10;
+
+                // Diğer öğeleri geri ekle
+                for (a in prevItems) items.add(a);
+                
+                // Tüm menüye hafif bir derinlik (Parallax) etkisi ekle
+                for (a in items.members) {
+                    a.scrollFactor.y += 0.12; // Biraz daha dinamik
+                }
+
+                // Arkaplan hareketini FunkLab kaosuna uyarla
+                state.bg.scrollFactor.y -= 0.03;
+                if (state.magenta != null) state.magenta.scrollFactor.y -= 0.03;
+            }
+        }
+    }
+}
