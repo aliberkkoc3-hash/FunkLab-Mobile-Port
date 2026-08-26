@@ -1,20 +1,24 @@
-FunkLab sunar--Botun saltanati
-Ellerini klavyeden cek--Bot halleder
-Yetenek sorunu mu--Artik degil
-Hata degil--Ozellik kanka
-%0 Utanc--%100 Botplay
-Klavyen emekli oldu--Gozun aydin
-Ninjamuffin gormesin--Aramizda kalsin
-Sen sadece izle--Ritm bizde
-Full Combo garantili--Terlemene gerek yok
-Bot senden iyi oynuyor--Kabullen artik
-Kafein bitti--Kodlar hala calisiyor
+FunkLab sunar--Funk-O-Matic 9000 is basinda
+Elleri ekrandan cek--Bot halleder
+0.8.7 mi geldi--Biz coktan kirdik
+Beceriksizlik bitti--FunkLab basladi
+Funk-O-Shield aktif--Reklamlara elveda
+Funk-O-Turbo acik--Tost makinesinde 60 FPS
+Parmaklara ozgurluk--Bataryaya el fatiha
+Ninjamuffin guncelledi--Bot yine tokatladi
+Bot deme--Funk-O-Matic 9000 de
+%0 Utanc--%100 Funk-O-Matic
+Telefonun isiniyorsa--O botun teri
 Oklar kendi gidiyor--Buyu degil matematik
-010101--Bot seninle konusuyor
-Beceriksizlik arsive kaldirildi--FunkLab farkiyla
-Arkana yaslan--Ve sadece izle
-Saka degil--Gercekten kendi oynuyor
+Sakin dokunma--Botun ritmini bozma
+010101--Bot seni izliyor
+AliBerk kodladi--Bot nota tokatladi
 Pixel Devs sundu--Bu sefer calmadik (GALİBA)
 Cokerse normaldir--Kapat ac gecer
-Botun canı sıkıldı--Seni izliyor
-Alt F4--Korkuyorsan bas
+Full Combo garantili--Terlemene gerek yok
+Bot senden iyi oynuyor--Kabullen artik
+Alt F4--Korkuyorsan bas (Ama mobildesin)
+Sen sadece izle--Funk-O-Matic bizde
+Beceriksizlik arsive kaldirildi--FunkLab farkiyla
+Ghost touch degil--Funk-O-Matic dokunusu
+Ritim oyunlarinin--Yeni efendisi geldi
