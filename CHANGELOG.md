@@ -4,6 +4,9 @@ Bütün değişimler burada. Okumayacağını biliyoruz ama yine de yazdık. Ned
 
 ---
 
+## [v0.1.3] - **Dökümantasyon ve Stüdyo Güncellemesi**
+*Tarih: 24-10-2026 21:32* **(LICENSE VE SECURITY GÜNCELLEMESİ VE STÜDYO ADI DEĞİŞİMİ)**
+
 ## [v0.1.3] - "NinjaMuffin Bizi Yıldıramaz & Menü Barışı" Güncellemesi 🛡️
 *Tarih: 26-08-2026 03:11 (NinjaMuffin'in rahat durmadığı, bizim de pes etmediğimiz gün)*
 
@@ -76,4 +79,4 @@ Bu güncelleme ile FunkLab sadece bir mod değil, bir marka haline geliyor. Mod�
 - **Akıllı Kahve:** Klavyenizin kendi kendine kahve sipariş etmesi.
 - Belki birkaç bug daha (özellik niyetine).
 
-**Pixel Devs Studio & AliBerk** - *"Biz kodladık, bot oynadı, siz izlediniz."*
+**Prism Crew & AliBerk** - *"Biz kodladık, bot oynadı, siz izlediniz."*
