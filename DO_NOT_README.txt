@@ -50,7 +50,7 @@ Bu bir Mobil Porttur. Haliyle bazı "mobil özellikler" (siz hata diyorsunuz) ol
 
 Bu modda emeği geçenler:
 - [BF]AliBerk[BF]: Funk-O-Matic 9000'i cebinize sığdıran, mobil portların efendisi ve kodlayıcı.
-- The Pixel Devs Studio: Orijinal kaosun ve üşengeçliğin mimarları.
+- Prism Crew: Orijinal kaosun ve üşengeçliğin mimarları.
 - Funk-O-Matic 9000: Bu şovun tek gerçek sahibi ve cebindeki ritim ilahı.
 
 Son Uyarı: Funk-O-Matic 9000 eğer ekrandan sana bakıp "Sıra ne zaman bende?" diye sorarsa, uygulamayı hemen kapat ve bir süre dışarı çıkıp çimenlere dokun.
@@ -73,5 +73,5 @@ Son Uyarı: Funk-O-Matic 9000 eğer ekrandan sana bakıp "Sıra ne zaman bende?"
          |_______________________|
 
 ##################################################################################
-#          The Pixel Devs Studio & [BF]AliBerk[BF] sundu: Parmaklara özgürlük!           #
+#   Prism Crew AltYapıyı Ele Aldı & [BF]AliBerk[BF] sundu: Parmaklara özgürlük!  #
 ##################################################################################
