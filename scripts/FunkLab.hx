@@ -47,10 +47,10 @@ class FunkLab extends Module
 
     override function onSongLoaded(e:SongLoadScriptEvent):Void
     {
-        if (Save.instance.modOptions.get("SuperBot") == null)
-            Save.instance.modOptions.set("SuperBot", false);
+        if (Save.instance.modOptions.get("FunkLab") == null)
+            Save.instance.modOptions.set("FunkLab", false);
 
-        isFunkLabActive = Save.instance.modOptions.get("SuperBot");
+        isFunkLabActive = Save.instance.modOptions.get("FunkLab");
         lastDodgedHitTime = -1;
         applySuperBotOptimizations();
     }
