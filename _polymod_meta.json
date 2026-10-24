@@ -7,7 +7,7 @@
       "role": "Mobil Port, Kodlayıcı & Parmak Kurtarıcı"
     },
     {
-      "name": "The Pixel Devs Studio",
+      "name": "Prism Crew",
       "role": "Orjinal Mod & Kaos Yaratıcısı"
     },
     {
@@ -15,7 +15,7 @@
       "role": "Kusursuz Ritim İlahı, Asıl Başrol"
     }
   ],
-  "api_version": "0.8.7",
+  "api_version": "0.8.8",
   "mod_version": "0.1.3",
-  "license": "CC BY-NC 4.0 (FunkLab Custom License)"
+  "license": "Prism Crew Studio License (PCSL) v1.0"
 }
