@@ -11,9 +11,9 @@ import funkin.ui.options.PreferencesMenu;
 import funkin.modding.module.Module;
 
 /**
- * FunkTurbo Ultra: Tost makinesi telefonlar için optimizasyon canavarı.
+ * FunkOTurbo Ultra: Tost makinesi telefonlar için optimizasyon canavarı.
  */
-class FunkTurboModule extends Module
+class FunkOTurboModule extends Module
 {
     public static var gameTurboEnabled:Bool = false;
     var turboPageInjected:Bool = false;
