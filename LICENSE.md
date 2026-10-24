@@ -1,25 +1,56 @@
-# ⚖️ FunkLab Kaos ve Tembellik Lisansı (v1.0)
+# Prism Crew Studio License (PCSL) v1.0
 
-Bu mod, "The Pixel Devs Studio" tarafından, parmaklarını yormak istemeyen üşengeçler için hazırlanmıştır. Bu lisans metni, standart Creative Commons BY-NC 4.0 (Atıf-TicariOlmayan) mantığını temel alır ama üzerine biraz FunkLab sosu eklenmiştir.
+Copyright (c) 2026 Prism Crew Studio. All rights reserved.
 
-### 1. KULLANIM VE PAYLAŞIM (Yapıştır Gitsin)
-- Bu modu istediğiniz gibi oynayabilir, yayınlayabilir, ekran görüntüsü alıp "Bakın nasıl Full Combo yapıyorum" diye hava atabilirsiniz.
-- Botun başarısını kendi başarınız gibi pazarlamak serbesttir, ancak vicdan azabından biz sorumlu değiliz.
+## 1. Ownership
 
-### 2. YASAKLAR (Sakın Ha!)
-- **Ticari Kullanım:** Bu modu satamazsınız. Botun emeği üzerinden zengin olamazsınız. Bedava verdik, bedava kalsın.
-- **Botla Kavga Etmek:** Bot sizden daha iyi oynuyor diye dosyalarına girip onu aşağılayamazsınız. O bir kod yığını ama duyguları olabilir (henüz kanıtlanmadı).
-- **Hırsızlık:** "Bunu ben yaptım" diyerek modu başka yerde paylaşmak ayıptır. Pixel Devs Studio'yu üzmeyin.
+All source code, software, libraries, tools, assets, designs, documentation, and other materials distributed under this license are the intellectual property of Prism Crew Studio or their respective credited owners, unless explicitly stated otherwise.
 
-### 3. SORUMLULUK REDDİ (Patlarsa Karışmayız)
-- Bu yazılım "OLDUĞU GİBİ" (veya botun keyfi nasılsa öyle) sunulmaktadır. 
-- Eğer mod çalışırken bilgisayarınız uçuş moduna geçerse, hoparlörden garip sesler gelirse veya klavyeniz kendi kendine "Yoruldum artık" diye yazı yazarsa, tüm sorumluluk kullanıcıya aittir.
-- Bir hata (bug) ile karşılaşırsanız, ona "dijital sanat eseri" muamelesi yapın.
+## 2. Permission
 
-### 4. BOT HAKLARI
-- Bot, BF'den (Boyfriend) daha yetenekli olduğunu tescillemiştir. Bu gerçeği kabullenmek bu lisansın en önemli maddesidir.
+Permission is granted to view and study the source code for educational, research, and personal learning purposes.
 
----
-*Özetle: Eğlenin, paylaşın, satmayın ve botun karşısında saygıyla eğilin.*
+Such permission does not grant the right to redistribute, republish, sell, sublicense, or commercially exploit the licensed materials.
 
-**© 2026 The Pixel Devs Studio. Bazı haklar saklıdır, bazıları botun insafına bırakılmıştır.**
+## 3. Restrictions
+
+Without prior written permission from Prism Crew Studio, you may not:
+
+- Copy, redistribute, or republish the licensed materials or substantial portions thereof.
+- Sell, sublicense, or commercially exploit the licensed materials.
+- Publish modified or derivative versions of the licensed materials.
+- Claim authorship or ownership of the original work.
+- Remove copyright notices, license notices, or author credits.
+- Use the licensed materials in another project in a way that violates this license.
+
+## 4. Attribution
+
+Any use expressly authorized by Prism Crew Studio must retain all applicable copyright notices, author credits, and attribution requirements.
+
+Attribution alone does not constitute permission to use, modify, or redistribute the licensed materials.
+
+## 5. Third-Party Materials
+
+Third-party libraries, assets, and components remain subject to their own respective licenses. This license does not override or replace those licenses.
+
+## 6. No Warranty
+
+The licensed materials are provided "AS IS", without warranties of any kind, express or implied, to the maximum extent permitted by applicable law.
+
+Prism Crew Studio shall not be liable for claims or damages arising from the use of the licensed materials, to the maximum extent permitted by applicable law.
+
+## 7. Termination
+
+Any rights granted under this license terminate automatically if you materially violate its terms, subject to applicable law.
+
+## 8. Requests for Permission
+
+For permissions not explicitly granted by this license, contact Prism Crew Studio through its official communication channels.
+
+## 9. Copyright Notice
+
+Unless otherwise specified:
+
+Copyright (c) 2026 Prism Crew Studio. All rights reserved.
+
+Unauthorized copying, redistribution, or commercial use is prohibited.
